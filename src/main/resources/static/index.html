@@ -1,0 +1,101 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lunch Split</title>
+</head>
+<body>
+<div id="app">
+    <h1>Lunch Split</h1>
+
+    <!-- Adicionar Pessoa -->
+    <div>
+        <label for="personName">Nome da Pessoa:</label>
+        <input type="text" id="personName" v-model="newPerson.name">
+
+        <button @click="addPerson">Adicionar Pessoa</button>
+    </div>
+
+    <!-- Lista de Pessoas -->
+    <div v-for="(person, index) in persons" :key="index">
+        <h2>{{ person.name }}</h2>
+
+        <!-- Adicionar Item para a Pessoa -->
+        <div>
+            <label for="item">Item Consumido:</label>
+            <input type="text" v-model="person.newItem.item">
+
+            <label for="itemPrice">Valor do Item:</label>
+            <input type="number" v-model="person.newItem.itemPrice">
+
+            <button @click="addItem(person)">Adicionar Item</button>
+        </div>
+
+        <!-- Itens Consumidos pela Pessoa -->
+        <div v-for="(item, itemIndex) in person.items" :key="itemIndex">
+            <p>Item: {{ item.item }}</p>
+            <p>Valor: R$ {{ item.itemPrice.toFixed(2) }}</p>
+
+            <!-- Botão para remover o item -->
+            <button @click="removeItem(person, itemIndex)">Remover Item</button>
+        </div>
+    </div>
+
+    <p></p>
+
+    <!-- Adicionar Taxa -->
+    <button @click="addTax">Adicionar Taxa</button>
+
+    <!-- Adicionar Desconto -->
+    <button @click="addDiscount">Adicionar Desconto</button>
+
+    <!-- Lista de Taxas -->
+    <div v-if="taxes.length > 0">
+        <h3>Taxas:</h3>
+        <ul>
+            <li v-for="(tax, index) in taxes" :key="index">
+                <input type="number" v-model="tax.value">
+                <label>
+                    <input type="checkbox" v-model="tax.isPercentage">
+                    Porcentagem
+                </label>
+                <button @click="removeTax(index)">Remover Taxa</button>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Lista de Descontos -->
+    <div v-if="discounts.length > 0">
+        <h3>Descontos:</h3>
+        <ul>
+            <li v-for="(discount, index) in discounts" :key="index">
+                <input type="number" v-model="discount.value">
+                <label>
+                    <input type="checkbox" v-model="discount.isPercentage">
+                    Porcentagem
+                </label>
+                <button @click="removeDiscount(index)">Remover Desconto</button>
+            </li>
+        </ul>
+    </div>
+
+    <button @click="calculateTotal">Calcular Total</button>
+
+    <!-- Total de Consumo -->
+    <p>Total de Consumo: R$ {{ totalConsumption.toFixed(2) }}</p>
+
+    <!-- Resultado Final -->
+    <div v-if="finalAmount">
+        <p>Taxas Extras: R$ {{ parseFloat(totalTaxes).toFixed(2) }}</p>
+        <p>Descontos: R$ {{ parseFloat(totalDiscounts).toFixed(2) }}</p>
+        <p>Total a pagar: R$ {{ parseFloat(finalAmount).toFixed(2) }}</p>
+        <a :href="picpayLink" target="_blank">Pagar com Picpay</a>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+<script src="app.js"></script>
+</body>
+</html>
