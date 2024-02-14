@@ -2,7 +2,8 @@ package com.lunchsplit.model;
 
 import java.util.List;
 
-public class Order {
+public class PersonItems extends Person {
+
     private List<Item> items;
 
     public List<Item> getItems() {

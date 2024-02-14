@@ -14,14 +14,16 @@ new Vue({
         discounts: [],
         finalAmount: null,
         totalTaxes: null,
-        totalDiscounts: null
+        totalDiscounts: null,
+        totalConsumption: null,
+        peopleValues: []
     },
     methods: {
         addPerson() {
-            // Remove espaços em branco no início e final do nome
+            // Remova espaços em branco no início e final do nome
             const cleanedName = this.newPerson.name.trim();
 
-            // Verifica se já existe uma pessoa com o mesmo nome
+            // Verifique se já existe uma pessoa com o mesmo nome
             const personExists = this.persons.some(person => person.name.trim() === cleanedName);
 
             if (personExists) {
@@ -29,7 +31,7 @@ new Vue({
                 return; // Impede a adição se já existir uma pessoa com o mesmo nome
             }
 
-            // Adiciona a nova pessoa apenas se não existir uma pessoa com o mesmo nome
+            // Adicione a nova pessoa apenas se não existir uma pessoa com o mesmo nome
             this.persons.push({
                 name: cleanedName,
                 newItem: {
@@ -39,7 +41,7 @@ new Vue({
                 items: [] // Lista de itens consumidos pela pessoa
             });
 
-            // Limpa os campos após adicionar a pessoa
+            // Limpe os campos após adicionar a pessoa
             this.newPerson = {
                 name: '',
                 newItem: {
@@ -54,14 +56,14 @@ new Vue({
                 itemPrice: parseFloat(person.newItem.itemPrice)
             });
 
-            // Limpa os campos após adicionar o item
+            // Limpe os campos após adicionar o item
             person.newItem = {
                 item: '',
                 itemPrice: 0
             };
         },
         removeItem(person, itemIndex) {
-            // Remove o item da lista de itens da pessoa
+            // Remova o item da lista de itens da pessoa
             person.items.splice(itemIndex, 1);
         },
         addTax() {
@@ -71,7 +73,7 @@ new Vue({
             });
         },
         removeTax(index) {
-            // Remove a taxa da lista de taxas
+            // Remova a taxa da lista de taxas
             this.taxes.splice(index, 1);
         },
         addDiscount() {
@@ -81,10 +83,16 @@ new Vue({
             });
         },
         removeDiscount(index) {
-            // Remove o desconto da lista de descontos
+            // Remova o desconto da lista de descontos
             this.discounts.splice(index, 1);
         },
         calculateTotal() {
+
+            if (this.persons.length === 0 || this.persons.every(person => person.items.length === 0)) {
+                alert('Adicione pelo menos uma pessoa com itens consumidos para calcular o total.');
+                return;
+            }
+
             const peopleData = this.persons.map(person => {
                 // Para cada pessoa, cria um objeto com o formato desejado
                 return {
@@ -119,13 +127,6 @@ new Vue({
                 discounts: discountsData
             };
 
-            // Agora você pode enviar 'requestData' para o backend
-            console.log(JSON.stringify(requestData));
-
-            // var requestData = "{\"People\":[{\"name\":\"Joao\",\"Itens\":[{\"Hamburguer\":16},{\"Batata\":20}]},{\"name\":\"Carlos\",\"Itens\":[{\"Porção\":30},{\"Refrigerante\":5}]},{\"name\":\"Lucas\",\"Itens\":[{\"Salada\":28},{\"Suco\":9}]}],\"Taxes\":[{\"Percentage\":true,\"Value\":10},{\"Percentage\":false,\"Value\":2.99}],\"Discounts\":[{\"Percentage\":true,\"Value\":2},{\"Percentage\":false,\"Value\":1.98}]}"
-            //
-            // requestData = requestData.replace('\\', '');
-            // requestData = requestData.replace('\\', '');
             fetch('http://localhost:8080/lunch/split', {
                 method: 'POST',
                 headers: {
@@ -133,49 +134,18 @@ new Vue({
                 },
                 body: JSON.stringify(requestData),
             })
-                .then(response => response.text())
-                .then(data => {
-                })
-                .catch(error => {
-                    console.error('Erro ao processar o pedido:', error);
-                });
-            // Você deve enviar 'requestData' para o seu backend usando uma requisição HTTP, como axios ou fetch.
-
-            // Lógica para calcular o total de consumo, considerando taxas extras e descontos
-            const consumption = this.totalConsumption;
-
-            // Calcula o total de taxas cumulativas
-            this.totalTaxes = this.taxes.reduce((total, tax) => {
-                if (tax.isPercentage) {
-                    return total + (consumption * (tax.value / 100));
-                } else {
-                    return total + parseFloat(tax.value);
-                }
-            }, 0);
-
-            // Calcula o total de descontos cumulativos
-            this.totalDiscounts = this.discounts.reduce((total, discount) => {
-                if (discount.isPercentage) {
-                    return total + (consumption * (discount.value / 100));
-                } else {
-                    return total + parseFloat(discount.value);
-                }
-            }, 0);
-
-            // Calcula o total com taxas e descontos
-            this.finalAmount = consumption + this.totalTaxes - this.totalDiscounts;
-
-            // Lógica para gerar o link do Picpay
-            this.picpayLink = 'https://www.picpay.com/';
-        }
-    },
-    computed: {
-        totalConsumption() {
-            // Calcula o total de consumo
-            return this.persons.reduce((total, person) => {
-                const itemsTotal = person.items.reduce((itemTotal, item) => itemTotal + item.itemPrice, 0);
-                return total + itemsTotal;
-            }, 0);
+            .then(response => response.text())
+            .then(data => {
+                const responseData = JSON.parse(data);
+                this.totalConsumption = responseData.totalConsumption;
+                this.totalTaxes = responseData.totalTaxes;
+                this.totalDiscounts = responseData.totalDiscounts;
+                this.finalAmount = responseData.totalToPay;
+                this.peopleValues = responseData.peopleValues;
+            })
+            .catch(error => {
+                console.error('Erro ao processar o pedido:', error);
+            });
         }
     }
 });

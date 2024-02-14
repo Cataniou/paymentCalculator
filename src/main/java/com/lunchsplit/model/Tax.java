@@ -1,7 +1,7 @@
 package com.lunchsplit.model;
 
 public class Tax {
-    private boolean isPercentage;
+    public boolean isPercentage;
     private double value;
 
     public boolean isPercentage() {

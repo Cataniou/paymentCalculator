@@ -2,20 +2,21 @@ package com.lunchsplit.controller;
 
 import com.lunchsplit.model.Discount;
 import com.lunchsplit.model.Person;
+import com.lunchsplit.model.PersonItems;
 import com.lunchsplit.model.Tax;
 
 import java.util.List;
 
 public class LunchRequest {
-    public List<Person> people;
+    public List<PersonItems> people;
     public List<Tax> taxes;
     public List<Discount> discounts;
 
-    public List<Person> getPeople() {
+    public List<PersonItems> getPeople() {
         return people;
     }
 
-    public void setPeople(List<Person> people) {
+    public void setPeople(List<PersonItems> people) {
         this.people = people;
     }
 
