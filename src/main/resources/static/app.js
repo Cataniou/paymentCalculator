@@ -92,6 +92,21 @@ new Vue({
         },
         calculateTotal() {
 
+            if (this.hasNegativeItemValues()) {
+                alert('Por favor, insira valores não negativos para os itens.');
+                return;
+            }
+
+            if (this.hasNegativeTaxValues()) {
+                alert('Por favor, insira valores não negativos para as taxas.');
+                return;
+            }
+
+            if (this.hasNegativeDiscountValues()) {
+                alert('Por favor, insira valores não negativos para os descontos.');
+                return;
+            }
+
             if (!this.selectedPaymentService) {
                 alert('Selecione um serviço de pagamento antes de calcular o total.');
                 return;
@@ -186,7 +201,33 @@ new Vue({
 
             // Limpando variavel de controle
             this.personToRemove = null;
-        }
+        },
+        hasNegativeItemValues() {
+            for (const person of this.persons) {
+                for (const item of person.items) {
+                    if (item.itemPrice < 0) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        },
+        hasNegativeTaxValues() {
+            for (const tax of this.taxes) {
+                if (tax.value < 0) {
+                    return true;
+                }
+            }
+            return false;
+        },
+        hasNegativeDiscountValues() {
+            for (const discount of this.discounts) {
+                if (discount.value < 0) {
+                    return true;
+                }
+            }
+            return false;
+        },
     },
     created() {
         // Ao criar a instância Vue, faça uma solicitação GET para obter os serviços de pagamento
