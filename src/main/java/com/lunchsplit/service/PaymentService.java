@@ -1,113 +1,58 @@
 package com.lunchsplit.service;
 
-import com.lunchsplit.controller.LunchRequest;
-import com.lunchsplit.controller.LunchResponse;
-import com.lunchsplit.model.*;
+import com.lunchsplit.model.LunchRequest;
+import com.lunchsplit.model.LunchResponse;
+import com.lunchsplit.model.entity.PersonValues;
+import com.lunchsplit.util.CalcUtils;
+import com.lunchsplit.util.PeopleUtils;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class PaymentService {
 
-    public static LunchResponse calculatePayment(LunchRequest request) throws Exception {
-        LunchResponse response = new LunchResponse();
-        try
-        {
-            double totalConsumption = 0;
-            double totalTaxes = 0;
-            double totalDiscounts = 0;
-            double totalToPay;
-            BigDecimal bd;
-            List<PersonValues> personValuesList = new ArrayList<>();
+    /**
+     * Método responsável por realizar os cálculos e gerar a resposta para o Controller
+     */
 
-            for (PersonItems person : request.getPeople()) {
-                for (Item item : person.getItems()) {
-                    totalConsumption += item.getValue();
-                }
+    public static LunchResponse calculatePayment(LunchRequest request) {
+        LunchResponse response = new LunchResponse("Erro ao processar dados!");
+
+        if (request.getPeople() != null) {
+            try {
+                double totalConsumption;
+                double totalTaxes;
+                double totalDiscounts;
+                double totalToPay;
+                List<PersonValues> personValuesList;
+
+                // Calcula Total de Consumação
+                totalConsumption = CalcUtils.calctotalConsumption(request.getPeople());
+                response.setTotalConsumption(totalConsumption);
+
+                // Calcula de Taxas
+                totalTaxes = CalcUtils.calcTaxes(request.getTaxes(), totalConsumption);
+                response.setTotalTaxes(totalTaxes);
+
+                // Calcula de Descontos
+                totalDiscounts = CalcUtils.calcDiscounts(request.getDiscounts(), totalConsumption);
+                response.setTotalDiscounts(totalDiscounts);
+
+                // Calcula Total a Pagar
+                totalToPay = CalcUtils.calcTotalToPay(totalConsumption, totalTaxes, totalDiscounts);
+                response.setTotalToPay(totalToPay);
+
+                // Gera a Lista de Pessoas com seus valores
+                personValuesList = PeopleUtils.generatePersonValuesList(request.getPeople(), totalConsumption, totalTaxes, totalDiscounts, request.getPaymentService(), request.getUserInput());
+                response.setPeopleValues(personValuesList);
+
+                response.setDescription("Sucesso ao processar os dados!");
+            } catch (Exception e) {
+                response.setDescription("Erro ao processar os dados");
+
             }
-
-            //Arredondar para duas casas decimais
-            bd = new BigDecimal(totalConsumption).setScale(2, RoundingMode.HALF_UP);
-            totalConsumption = bd.doubleValue();
-
-            response.setTotalConsumption(totalConsumption);
-
-            for (Tax tax : request.getTaxes()) {
-                totalTaxes += tax.isPercentage ? ((tax.getValue() * totalConsumption) / 100) : tax.getValue();
-            }
-
-            //Arredondar para duas casas decimais
-            bd = new BigDecimal(totalTaxes).setScale(2, RoundingMode.HALF_UP);
-            totalTaxes = bd.doubleValue();
-
-            response.setTotalTaxes(totalTaxes);
-
-            for (Discount discount : request.getDiscounts()) {
-                totalDiscounts += discount.isPercentage ? ((discount.getValue() * totalConsumption) / 100) : discount.getValue();
-            }
-
-            //Arredondar para duas casas decimais
-            bd = new BigDecimal(totalDiscounts).setScale(2, RoundingMode.HALF_UP);
-            totalDiscounts = bd.doubleValue();
-
-            response.setTotalDiscounts(totalDiscounts);
-
-            totalToPay = totalConsumption + totalTaxes - totalDiscounts;
-            totalToPay = totalToPay < 0 ? 0 : totalToPay;
-
-            //Arredondar para duas casas decimais
-            bd = new BigDecimal(totalToPay).setScale(2, RoundingMode.HALF_UP);
-            totalToPay = bd.doubleValue();
-
-            response.setTotalToPay(totalToPay);
-
-            for (PersonItems person : request.getPeople()) {
-                double consumptionPerson = 0;
-                double percentParticipation;
-                double amountToPay;
-                String linkToPay;
-                PersonValues personValues = new PersonValues();
-                personValues.setName(person.getName());
-                for (Item item : person.getItems()) {
-                    consumptionPerson += item.getValue();
-                }
-
-                percentParticipation = consumptionPerson / totalConsumption;
-                amountToPay = (totalConsumption * percentParticipation) + (totalTaxes * percentParticipation) - (totalDiscounts * percentParticipation);
-
-                //Arredondar para duas casas decimais
-                bd = new BigDecimal(amountToPay).setScale(2, RoundingMode.HALF_UP);
-                amountToPay = bd.doubleValue();
-
-                personValues.setAmountToPay(amountToPay);
-
-                if (PaymentLink.Services.valueOf(request.getPaymentService()) == PaymentLink.Services.PICPAY)
-                {
-                    linkToPay = generatePicpayLink(request.getUserInput(), amountToPay);
-                }
-                else
-                {
-                    linkToPay = null;
-                }
-                personValues.setLinkToPay(linkToPay);
-
-                personValuesList.add(personValues);
-            }
-
-            response.setPeopleValues(personValuesList);
-            return response;
         }
-        catch (Exception e) {
-            throw new Exception("Erro ao processar dados de refeição!");
-
-        }
-    }
-
-    public static String generatePicpayLink(String user, double amount) {
-        return PaymentLink.Services.PICPAY.getLinkBase() + user + "/" + amount;
+        return response;
     }
 }

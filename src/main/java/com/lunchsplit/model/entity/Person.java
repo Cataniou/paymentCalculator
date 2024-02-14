@@ -1,9 +1,7 @@
-package com.lunchsplit.model;
-
-import java.util.List;
+package com.lunchsplit.model.entity;
 
 public class Person {
-    private String name;
+    private String name; // Nome da pessoa que realizou consumo
 
     public String getName() {
         return name;

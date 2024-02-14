@@ -1,16 +1,22 @@
-package com.lunchsplit.controller;
+package com.lunchsplit.model;
 
-import com.lunchsplit.model.*;
+import com.lunchsplit.model.entity.Discount;
+import com.lunchsplit.model.entity.PersonItems;
+import com.lunchsplit.model.entity.Tax;
 
 import java.util.List;
 
 public class LunchRequest {
-    public List<PersonItems> people;
-    public List<Tax> taxes;
-    public List<Discount> discounts;
-    public String paymentService;
 
-    public String userInput;
+    /**
+     * Estrutura padrão da requisição que o FrontEnd manda
+     */
+    private List<PersonItems> people;
+    private List<Tax> taxes;
+    private List<Discount> discounts;
+    private String paymentService;
+
+    private String userInput;
 
     public String getUserInput() {
         return userInput;

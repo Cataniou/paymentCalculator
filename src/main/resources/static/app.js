@@ -1,4 +1,3 @@
-// app.js
 new Vue({
     el: '#app',
     data: {
@@ -10,6 +9,7 @@ new Vue({
                 itemPrice: 0
             }
         },
+        newPersonName: '',
         taxes: [],
         discounts: [],
         finalAmount: null,
@@ -19,19 +19,23 @@ new Vue({
         peopleValues: [],
         paymentServices: [],
         selectedPaymentService: null,
-        userInput: ''
+        userInput: '',
+        personToRemove: null
     },
     methods: {
         addPerson() {
-            // Remova espaços em branco no início e final do nome
             const cleanedName = this.newPerson.name.trim();
 
-            // Verifique se já existe uma pessoa com o mesmo nome
             const personExists = this.persons.some(person => person.name.trim() === cleanedName);
 
             if (personExists) {
                 alert('Já existe uma pessoa com esse nome. Por favor, escolha outro nome.');
-                return; // Impede a adição se já existir uma pessoa com o mesmo nome
+                return;
+            }
+
+            if (cleanedName === '') {
+                alert('Por favor, insira um nome válido para a pessoa.');
+                return;
             }
 
             // Adicione a nova pessoa apenas se não existir uma pessoa com o mesmo nome
@@ -41,7 +45,7 @@ new Vue({
                     item: '',
                     itemPrice: 0
                 },
-                items: [] // Lista de itens consumidos pela pessoa
+                items: []
             });
 
             // Limpe os campos após adicionar a pessoa
@@ -66,27 +70,24 @@ new Vue({
             };
         },
         removeItem(person, itemIndex) {
-            // Remova o item da lista de itens da pessoa
             person.items.splice(itemIndex, 1);
         },
         addTax() {
             this.taxes.push({
                 value: 0,
-                isPercentage: true // Porcentagem por padrão
+                isPercentage: false
             });
         },
         removeTax(index) {
-            // Remova a taxa da lista de taxas
             this.taxes.splice(index, 1);
         },
         addDiscount() {
             this.discounts.push({
                 value: 0,
-                isPercentage: true // Porcentagem por padrão
+                isPercentage: false
             });
         },
         removeDiscount(index) {
-            // Remova o desconto da lista de descontos
             this.discounts.splice(index, 1);
         },
         calculateTotal() {
@@ -96,7 +97,6 @@ new Vue({
                 return;
             }
 
-            // Verifique o preenchimento do campo de usuário se o serviço não for "NENHUM"
             if (this.selectedPaymentService !== 'NENHUM' && !this.userInput) {
                 alert('Por favor, preencha o campo de usuário.');
                 return;
@@ -108,11 +108,9 @@ new Vue({
             }
 
             const peopleData = this.persons.map(person => {
-                // Para cada pessoa, cria um objeto com o formato desejado
                 return {
                     name: person.name,
                     items: person.items.map(item => {
-                        // Para cada item consumido, cria um objeto no formato desejado
                         return {
                             name: item.item,
                             value: item.itemPrice
@@ -143,6 +141,7 @@ new Vue({
                 userInput: this.userInput
             };
 
+            console.log(requestData); // Printa no log o que foi mandado para o BackEnd
             fetch('http://localhost:8080/lunch/split', {
                 method: 'POST',
                 headers: {
@@ -150,22 +149,43 @@ new Vue({
                 },
                 body: JSON.stringify(requestData),
             })
-            .then(response => response.text())
-            .then(data => {
-                const responseData = JSON.parse(data);
-                this.totalConsumption = responseData.totalConsumption;
-                this.totalTaxes = responseData.totalTaxes;
-                this.totalDiscounts = responseData.totalDiscounts;
-                this.finalAmount = responseData.totalToPay;
-                this.peopleValues = responseData.peopleValues;
-            })
-            .catch(error => {
-                console.error('Erro ao processar o pedido:', error);
-            });
+                .then(response => response.text())
+                .then(data => {
+                    const responseData = JSON.parse(data);
+                    this.totalConsumption = responseData.totalConsumption;
+                    this.totalTaxes = responseData.totalTaxes;
+                    this.totalDiscounts = responseData.totalDiscounts;
+                    this.finalAmount = responseData.totalToPay;
+                    this.peopleValues = responseData.peopleValues;
+                })
+                .catch(error => {
+                    console.error('Erro ao processar o pedido:', error);
+                });
         },
         refreshPage() {
-            // Recarrega a página para limpar os dados
             location.reload();
+        },
+        copyPaymentLink(linkToPay) {
+            const inputElement = document.createElement('input');
+            inputElement.value = linkToPay;
+
+            document.body.appendChild(inputElement);
+
+            inputElement.select();
+            inputElement.setSelectionRange(0, 99999); // Para dispositivos móveis
+
+            document.execCommand('copy');
+
+            document.body.removeChild(inputElement);
+
+            alert('Link de pagamento copiado para a área de transferência!');
+        },
+        removePerson(index) {
+            this.personToRemove = index;
+            this.persons.splice(this.personToRemove, 1);
+
+            // Limpando variavel de controle
+            this.personToRemove = null;
         }
     },
     created() {

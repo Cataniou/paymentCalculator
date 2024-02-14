@@ -59,6 +59,8 @@
             <!-- Botão para remover o item -->
             <button @click="removeItem(person, itemIndex)" class="btn btn-danger">Remover Item</button>
         </div>
+
+        <button @click="removePerson(index)" class="btn btn-danger">Remover Pessoa</button>
     </div>
 
     <!-- Adicionar Taxa -->
@@ -98,7 +100,7 @@
     </div>
 
     <br>
-    <button @click="calculateTotal" class="btn btn-danger mt-3">Calcular Total</button>
+    <button @click="calculateTotal" class="btn btn-success mt-3">Calcular Total</button>
 
     <!-- Resultado Final -->
     <div v-if="finalAmount" class="mt-4 total-box p-3 bg-light">
@@ -111,7 +113,14 @@
         <div v-for="personValue in peopleValues" :key="personValue.name" class="mb-3 person-box p-3 bg-light">
             <h4>{{ personValue.name }}</h4>
             <p>Deverá pagar: R$ {{ parseFloat(personValue.amountToPay).toFixed(2) }}</p>
-            <a :href="personValue.linkToPay" target="_blank" class="btn btn-success">Pagar</a>
+
+            <!-- Adicione uma estrutura condicional v-if -->
+            <div v-if="personValue.linkToPay">
+                <a :href="personValue.linkToPay" target="_blank" class="btn btn-success">Pagar</a>
+
+                <!-- Botão Copiar Link de Pagamento -->
+                <button @click="copyPaymentLink(personValue.linkToPay)" class="btn btn-info ms-2">Copiar Link de Pagamento</button>
+            </div>
         </div>
     </div>
 

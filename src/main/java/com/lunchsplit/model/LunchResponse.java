@@ -1,17 +1,41 @@
-package com.lunchsplit.controller;
+package com.lunchsplit.model;
 
-import com.lunchsplit.model.PersonValues;
+import com.lunchsplit.model.entity.PersonValues;
 
 import java.util.List;
 
 public class LunchResponse {
 
+    /**
+     * Estrutura padrão da resposta que é mandada para o FrontEnd
+     */
+
     private double totalConsumption;
     private double totalTaxes;
     private double totalDiscounts;
     private double totalToPay;
-
+    private String description;
     private List<PersonValues> peopleValues;
+
+    public LunchResponse() {
+    }
+
+    public LunchResponse(String description) {
+        this.setDescription(description);
+
+        this.setTotalConsumption(0);
+        this.setTotalTaxes(0);
+        this.setTotalDiscounts(0);
+        this.setTotalToPay(0);
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
     public double getTotalConsumption() {
         return totalConsumption;
