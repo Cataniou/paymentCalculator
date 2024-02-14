@@ -44,11 +44,8 @@ Bem-vindo ao Lunch Split App, uma aplicação web simples para calcular e dividi
 ### Como Iniciar o Projeto
 
 1. Clone este repositório.
-2. Abra o terminal e vá para o diretório do frontend (`src/main/frontend`).
-3. Execute `npm install` para instalar as dependências.
-4. Execute `npm run serve` para iniciar o servidor de desenvolvimento do frontend.
-5. Em outro terminal, vá para o diretório do backend (`src/main/java/com/lunchsplit`).
-6. Execute `./mvnw spring-boot:run` para iniciar o servidor backend.
+2. Abra o terminal e vá para a pasta raiz do projeto.
+3. Execute `mvn spring-boot:run` para iniciar o servidor backend.
 
 A aplicação estará disponível em [http://localhost:8080](http://localhost:8080).
 
