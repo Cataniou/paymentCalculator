@@ -1,9 +1,6 @@
 package com.lunchsplit.controller;
 
-import com.lunchsplit.model.Discount;
-import com.lunchsplit.model.Person;
-import com.lunchsplit.model.PersonItems;
-import com.lunchsplit.model.Tax;
+import com.lunchsplit.model.*;
 
 import java.util.List;
 
@@ -11,6 +8,25 @@ public class LunchRequest {
     public List<PersonItems> people;
     public List<Tax> taxes;
     public List<Discount> discounts;
+    public String paymentService;
+
+    public String userInput;
+
+    public String getUserInput() {
+        return userInput;
+    }
+
+    public void setUserInput(String userInput) {
+        this.userInput = userInput;
+    }
+
+    public String getPaymentService() {
+        return paymentService;
+    }
+
+    public void setPaymentService(String service) {
+        this.paymentService = service;
+    }
 
     public List<PersonItems> getPeople() {
         return people;

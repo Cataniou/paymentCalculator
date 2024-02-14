@@ -16,7 +16,10 @@ new Vue({
         totalTaxes: null,
         totalDiscounts: null,
         totalConsumption: null,
-        peopleValues: []
+        peopleValues: [],
+        paymentServices: [],
+        selectedPaymentService: null,
+        userInput: ''
     },
     methods: {
         addPerson() {
@@ -88,6 +91,17 @@ new Vue({
         },
         calculateTotal() {
 
+            if (!this.selectedPaymentService) {
+                alert('Selecione um serviço de pagamento antes de calcular o total.');
+                return;
+            }
+
+            // Verifique o preenchimento do campo de usuário se o serviço não for "NENHUM"
+            if (this.selectedPaymentService !== 'NENHUM' && !this.userInput) {
+                alert('Por favor, preencha o campo de usuário.');
+                return;
+            }
+
             if (this.persons.length === 0 || this.persons.every(person => person.items.length === 0)) {
                 alert('Adicione pelo menos uma pessoa com itens consumidos para calcular o total.');
                 return;
@@ -124,7 +138,9 @@ new Vue({
             const requestData = {
                 people: peopleData,
                 taxes: taxesData,
-                discounts: discountsData
+                discounts: discountsData,
+                paymentService: this.selectedPaymentService,
+                userInput: this.userInput
             };
 
             fetch('http://localhost:8080/lunch/split', {
@@ -146,6 +162,22 @@ new Vue({
             .catch(error => {
                 console.error('Erro ao processar o pedido:', error);
             });
+        },
+        refreshPage() {
+            // Recarrega a página para limpar os dados
+            location.reload();
         }
+    },
+    created() {
+        // Ao criar a instância Vue, faça uma solicitação GET para obter os serviços de pagamento
+        fetch('http://localhost:8080/paymentServices')
+            .then(response => response.json())
+            .then(data => {
+                // Atualize o array paymentServices com os serviços obtidos do backend
+                this.paymentServices = data;
+            })
+            .catch(error => {
+                console.error('Erro ao obter os serviços de pagamento:', error);
+            });
     }
 });

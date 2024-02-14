@@ -69,6 +69,7 @@ public class PaymentService {
                 double consumptionPerson = 0;
                 double percentParticipation;
                 double amountToPay;
+                String linkToPay;
                 PersonValues personValues = new PersonValues();
                 personValues.setName(person.getName());
                 for (Item item : person.getItems()) {
@@ -83,8 +84,17 @@ public class PaymentService {
                 amountToPay = bd.doubleValue();
 
                 personValues.setAmountToPay(amountToPay);
-                //TO:DO lógica do link de pagamento;
-                personValues.setLinkToPay("https://www.picpay.com/");
+
+                if (PaymentLink.Services.valueOf(request.getPaymentService()) == PaymentLink.Services.PICPAY)
+                {
+                    linkToPay = generatePicpayLink(request.getUserInput(), amountToPay);
+                }
+                else
+                {
+                    linkToPay = null;
+                }
+                personValues.setLinkToPay(linkToPay);
+
                 personValuesList.add(personValues);
             }
 
@@ -97,10 +107,7 @@ public class PaymentService {
         }
     }
 
-    public String generatePicpayLink(double amount) {
-        // Implementar a lógica para gerar o link do Picpay
-        // ...
-
-        return "https://www.picpay.com/";
+    public static String generatePicpayLink(String user, double amount) {
+        return PaymentLink.Services.PICPAY.getLinkBase() + user + "/" + amount;
     }
 }

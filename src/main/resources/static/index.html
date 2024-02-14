@@ -12,12 +12,27 @@
 <div id="app" class="container mt-5">
     <h1 class="mb-4">Lunch Split</h1>
 
+    <!-- Adicionar Serviço de Pagamento -->
+    <div class="mb-3">
+        <label for="paymentService" class="form-label">Selecione o Serviço Para Link de Pagamento:</label>
+        <!-- Use um elemento <select> para a lista de serviços de pagamento -->
+        <select v-model="selectedPaymentService" class="form-select">
+            <option v-for="service in paymentServices" :key="service">{{ service }}</option>
+        </select>
+    </div>
+
+    <!-- Adicione o campo de entrada do usuário com v-if -->
+    <div class="mb-3" v-if="selectedPaymentService && selectedPaymentService !== 'NENHUM'">
+        <label for="userInput" class="form-label">Usuário para Link de Pagamento:</label>
+        <input type="text" id="userInput" v-model="userInput" class="form-control">
+    </div>
+
     <!-- Adicionar Pessoa -->
     <div class="mb-3">
         <label for="personName" class="form-label">Nome da Pessoa:</label>
         <input type="text" id="personName" v-model="newPerson.name" class="form-control">
 
-        <button @click="addPerson" class="btn btn-primary mt-2">Adicionar Pessoa</button>
+        <button @click="addPerson" class="btn btn-success mt-2">Adicionar Pessoa</button>
     </div>
 
     <!-- Lista de Pessoas -->
@@ -83,7 +98,7 @@
     </div>
 
     <br>
-    <button @click="calculateTotal" class="btn btn-primary mt-3">Calcular Total</button>
+    <button @click="calculateTotal" class="btn btn-danger mt-3">Calcular Total</button>
 
     <!-- Resultado Final -->
     <div v-if="finalAmount" class="mt-4 total-box p-3 bg-light">
@@ -96,9 +111,14 @@
         <div v-for="personValue in peopleValues" :key="personValue.name" class="mb-3 person-box p-3 bg-light">
             <h4>{{ personValue.name }}</h4>
             <p>Deverá pagar: R$ {{ parseFloat(personValue.amountToPay).toFixed(2) }}</p>
-            <a :href="personValue.linkToPay" target="_blank" class="btn btn-success">Pagar com Picpay</a>
+            <a :href="personValue.linkToPay" target="_blank" class="btn btn-success">Pagar</a>
         </div>
     </div>
+
+    <br>
+
+    <!-- Botão de Refresh -->
+    <button @click="refreshPage" class="btn btn-secondary mt-3">Limpar Dados</button>
 </div>
 
 <!-- Adicione os scripts do Bootstrap -->
