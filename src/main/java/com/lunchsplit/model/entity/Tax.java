@@ -1,7 +1,7 @@
 package com.lunchsplit.model.entity;
 
 public class Tax {
-    private boolean isPercentage; // Parâmetro para sinalizar se o valor se trata de porcentagem ou não
+    public boolean isPercentage; // Parâmetro para sinalizar se o valor se trata de porcentagem ou não
     private double value; // Valor em questão da Taxa
 
     public Tax() {
