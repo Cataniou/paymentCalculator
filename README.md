@@ -39,7 +39,8 @@ Bem-vindo ao Lunch Split App, uma aplicação web simples para calcular e dividi
 ### Tecnologias Utilizadas
 
 - Vue.js para o frontend.
-- Java com Spring Boot para o backend.
+- Java 21 com Spring Boot 3.2.2 para o backend.
+- Maven 3.9.6
 
 ### Como Iniciar o Projeto
 
